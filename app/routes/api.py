@@ -73,7 +73,7 @@ def upload():
         "message": "File uploaded successfully",
         "lines_saved": lines_saved,
         "lines_skipped": lines_skipped,
-    })
+        })
 
 
 @api.get("/total-time")
