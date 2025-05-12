@@ -1,7 +1,10 @@
 import json
 from datetime import datetime
 
-from flask import Blueprint
+from flask import Blueprint, request
+
+import app.db.query as qry
+from app.db import get_db, close_db
 
 
 api = Blueprint("api", __name__)
@@ -15,6 +18,72 @@ def read_log(filename: str = "/tmp/qtile-focus-log-1000.json") -> list[dict]:
             line["time"] = datetime.fromisoformat(line["time"])
             log.append(line)
     return log
+
+
+def allowed_filetype(filename: str) -> bool:
+    return "." in filename and filename.rsplit(".", 1)[1].lower() == "json"
+
+
+def valid_wm_class(wm_class: list[str]) -> bool:
+    return isinstance(wm_class, list) and len(wm_class) == 2 and \
+            all(isinstance(name, str) for name in wm_class)
+
+
+def valid_time_format(time: str) -> bool:
+    try:
+        datetime.fromisoformat(time)
+        return True
+    except (TypeError, ValueError):
+        return False
+
+
+@api.post("/upload")
+def upload():
+    file = request.files.get("file")
+    if not file:
+        return json.dumps({"error": "No valid file provided"}), 400
+    if not allowed_filetype(file.filename):
+        return json.dumps({"error": "File type is not allowed"}), 415
+
+    lines_saved = 0
+    lines_skipped = 0
+    try:
+        db = get_db()
+        for line in file:
+            try:
+                line = json.loads(line)
+            except json.JSONDecodeError:
+                lines_skipped += 1
+                continue
+
+            time = line.get("time")
+            if not time or not valid_time_format(time):
+                lines_skipped += 1
+                continue
+
+            wm_class = line.get("wm_class")
+            if wm_class and valid_wm_class(wm_class):
+                wm_class_id = qry.store_wm_class(db, wm_class)
+                if not qry.successful_insert(db, qry.INSERT_FOCUS_WM_CLASS,
+                                             (time, wm_class_id,)):
+                    lines_skipped += 1
+                    continue
+                lines_saved += 1
+            else:
+                if not qry.successful_insert(db, qry.INSERT_FOCUS_NONE,
+                                             tuple(time)):
+                    lines_skipped += 1
+                    continue
+                lines_saved += 1
+    finally:
+        close_db()
+
+    file.close()
+    return json.dumps({
+        "message": "File uploaded successfully",
+        "lines_saved": lines_saved,
+        "lines_skipped": lines_skipped,
+    })
 
 
 @api.get("/total-time")
