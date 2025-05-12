@@ -6,6 +6,10 @@ SELECT_WM_CLASS_ID = (
 )
 INSERT_FOCUS_WM_CLASS = "INSERT INTO focus (time, wm_class_id) VALUES (?, ?)"
 INSERT_FOCUS_NONE = "INSERT INTO focus (time) VALUES (?)"
+SELECT_TIME_PER_PROGRAM = (
+        "SELECT focus.time, wm_class.class_name FROM focus LEFT JOIN wm_class "
+        "ON focus.wm_class_id = wm_class.id"
+)
 
 
 def successful_insert(db, query: str, data: tuple) -> bool:

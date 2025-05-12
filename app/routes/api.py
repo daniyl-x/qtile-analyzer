@@ -10,16 +10,6 @@ from app.db import get_db, close_db
 api = Blueprint("api", __name__)
 
 
-def read_log(filename: str = "/tmp/qtile-focus-log-1000.json") -> list[dict]:
-    log = []
-    with open(filename, "r") as file:
-        for line in file:
-            line = json.loads(line)
-            line["time"] = datetime.fromisoformat(line["time"])
-            log.append(line)
-    return log
-
-
 def allowed_filetype(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() == "json"
 
@@ -88,7 +78,10 @@ def upload():
 
 @api.get("/total-time")
 def total_time():
-    log = read_log()
+    db = get_db()
+    log = db.execute("SELECT time FROM focus").fetchall()
+    close_db()
+
     total_time = log[-1]["time"] - log[0]["time"]
     total_time = total_time.total_seconds()
 
@@ -97,11 +90,15 @@ def total_time():
 
 @api.get("/time-per-program")
 def time_per_program():
-    log = read_log()
+    db = get_db()
+    log = db.execute(qry.SELECT_TIME_PER_PROGRAM).fetchall()
+    close_db()
+
+    log = list(map(dict, log))
     time_per_program = {}
     log_len = len(log)
     for i in range(log_len):
-        program_name = log[i]["wm_class"][1]
+        program_name = log[i].get("class_name")
         if program_name not in time_per_program:
             time_per_program[program_name] = 0
 
