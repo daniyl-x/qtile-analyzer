@@ -17,6 +17,10 @@ set_option() {
     fi
 }
 
+active_venv() {
+    printf "$VIRTUAL_ENV" | rev | cut -d/ -f1 | rev
+}
+
 
 if [ "$#" -eq  0 ] || [ "$1" = "help" ] || \
     ! printf "%s\n" "dev" "prod" | grep -qw "$1"; then
@@ -72,7 +76,7 @@ printf "%s Creating a new venv \"%s\".\n" "$_PREFIX" "$_VENV_NAME"
 "$_PYTHON_CMD" -m venv "$_VENV_NAME"
 . "$_VENV_NAME/bin/activate"
 
-if [ "$VIRTUAL_ENV_PROMPT" != "$_VENV_NAME" ]; then
+if [ "$(active_venv)" != "$_VENV_NAME" ]; then
     printf "%s Failed to activate venv.\n" "$_PREFIX"
     exit 3
 fi
