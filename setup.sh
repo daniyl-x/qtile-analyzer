@@ -102,6 +102,7 @@ sed "s/^SECRET_KEY=.*$/SECRET_KEY=\"$_SECRET_KEY\"/" .env > "$_TMPFILE" && \
 _SUCCESS_MSG="$_PREFIX Setup complete."
 _DB_MSG="$_PREFIX To initialize database, run \"flask init-db\"."
 _DB_MSG="$_DB_MSG WARNING: This will destroy existing database."
+_PROD_CMD="gunicorn -w 4 -b 0.0.0.0 app:app"
 
 if [ "$_MODE" = "dev" ]; then
     printf "%s\n" "$_SUCCESS_MSG"
@@ -113,7 +114,7 @@ elif [ "$_MODE" = "prod" ]; then
     "$_PIP_CMD" install gunicorn
     printf "%s\n" "$_SUCCESS_MSG"
     printf "%s\n" "$_DB_MSG"
-    printf "%s To start the production server, run \"gunicorn -w 4 app:app\".\n" \
-        "$_PREFIX"
+    printf "%s To start the production server, run \"%s\"." "$_PREFIX" \
+        "$_PROD_CMD"
 fi
 
