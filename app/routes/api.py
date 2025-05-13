@@ -61,7 +61,7 @@ def upload():
                 lines_saved += 1
             else:
                 if not qry.successful_insert(db, qry.INSERT_FOCUS_NONE,
-                                             tuple(time)):
+                                             (time,)):
                     lines_skipped += 1
                     continue
                 lines_saved += 1
