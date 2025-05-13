@@ -7,6 +7,7 @@ time spent per specific program, etc.
 
 ## Table of contents
 - [Development](#development)
+- [Deployment](#Deployment)
 - [License](#license)
 
 
@@ -15,7 +16,7 @@ Setup your environment once after clonning the repository:
 ```sh
 python -m venv .venv 
 . .venv/bin/activate 
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 flask init-db
 ```
 Run the development server:
@@ -23,6 +24,22 @@ Run the development server:
 . .venv/bin/activate
 flask run --reload
 ```
+
+
+## Deployment
+Setup your environment once after clonning the repository:
+```sh
+python -m venv .venv 
+. .venv/bin/activate 
+pip install -r requirements.txt
+flask init-db
+```
+Run the server:
+```sh
+. .venv/bin/activate
+gunicorn -w 4 app:app
+```
+
 
 ## License
 All the original code and configuration files written by me are licensed
