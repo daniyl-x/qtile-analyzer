@@ -10,7 +10,10 @@ from app.routes.api import api
 load_dotenv()
 
 app = Flask(__name__)
-app.config["DATABASE"] = os.path.join(app.instance_path, os.getenv("DATABASE"))
+app.config["DATABASE"] = os.path.join(
+        app.instance_path,
+        os.getenv("DATABASE", "qtile-analyzer.sqlite")
+        )
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 try:
