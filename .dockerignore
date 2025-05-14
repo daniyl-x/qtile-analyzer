@@ -1,0 +1,11 @@
+.env
+.dockerignore
+.git/
+.gitignore
+*.pyc
+__pycache__/
+.venv/
+Dockerfile*
+instance/
+README.md
+
