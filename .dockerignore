@@ -1,11 +1,12 @@
-.env
+*.pyc
 .dockerignore
+.env*
 .git/
 .gitignore
-*.pyc
-__pycache__/
 .venv/
 Dockerfile*
-instance/
 README.md
+__pycache__/
+instance/
+setup.sh
 
